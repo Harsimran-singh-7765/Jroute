@@ -1,0 +1,10 @@
+# Python/Venv exclusions
+venv/
+__pycache__/
+*.pyc
+
+# JROUTE USER GENERATED CONTENT - MUST BE IGNORED
+backend/uploads/
+backend/shared_files/
+backend/chunks/
+backend/*.log
