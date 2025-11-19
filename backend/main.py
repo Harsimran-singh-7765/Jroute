@@ -82,11 +82,12 @@ async def upload_file(nickname: str = Query(...), file: UploadFile = File(...)):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Ingestion failed: {e}")
 
-    # 2. ENCODE via Bash (Using jtransport.sh now)
+    # 2. ENCODE via Bash (Explicit /bin/bash call)
     print(f"--- [PYTHON] Encoding {safe_filename} via J-Transport ---")
     try:
+        # FIXED: Added "/bin/bash" as the first argument
         encode_proc = subprocess.run(
-            ["./backend/jtransport.sh", "encode", temp_path, "512k", safe_filename],
+            ["/bin/bash", "./backend/jtransport.sh", "encode", temp_path, "512k", safe_filename],
             capture_output=True, text=True, check=True
         )
         print(encode_proc.stderr) 
@@ -97,10 +98,11 @@ async def upload_file(nickname: str = Query(...), file: UploadFile = File(...)):
         
         chunk_storage_path = encode_output.split("SUCCESS:")[1]
         
-        # 3. DECODE via Bash (Immediate reassembly for availability)
+        # 3. DECODE via Bash (Explicit /bin/bash call)
         print(f"--- [PYTHON] Reassembling packets... ---")
+        # FIXED: Added "/bin/bash" as the first argument
         decode_proc = subprocess.run(
-            ["./backend/jtransport.sh", "decode", chunk_storage_path, safe_filename],
+            ["/bin/bash", "./backend/jtransport.sh", "decode", chunk_storage_path, safe_filename],
             capture_output=True, text=True, check=True
         )
         print(decode_proc.stderr)
@@ -147,8 +149,9 @@ async def download_file(filename: str, request: Request):
             length = end_byte - start_byte + 1
             
             def bash_stream():
+                # FIXED: Added "/bin/bash" as the first argument
                 process = subprocess.Popen(
-                    ["./backend/j_byte_extractor.sh", file_path, str(start_byte), str(length)],
+                    ["/bin/bash", "./backend/j_byte_extractor.sh", file_path, str(start_byte), str(length)],
                     stdout=subprocess.PIPE, stderr=subprocess.PIPE
                 )
                 while True:

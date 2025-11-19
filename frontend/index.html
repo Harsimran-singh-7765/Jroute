@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -5,574 +6,366 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Jroute Chat</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&family=Press+Start+2P&display=swap" rel="stylesheet">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+<style>
+    /* =========================================
+       1. THEME CONFIGURATION & VARIABLES
+       ========================================= */
+    :root {
+        /* --- DEFAULT THEME (AMBER - Your Original) --- */
+        --primary: #ffbb33;          /* Main text */
+        --glow: #ffaa33;             /* Borders & Light glow */
+        --glow-strong: #ff8833;      /* Strong shadows */
+        --glow-intense: #ff6633;     /* Intense highlights */
+        --bg-overlay: rgba(40, 30, 0, 0.6); /* Semi-transparent backgrounds */
+        --bg-dark: rgba(20, 15, 0, 0.6);    /* Chat window bg */
+        --user-bg: rgba(40, 30, 0, 0.5);    /* Message bg */
+        --own-bg: rgba(40, 40, 20, 0.5);    /* Own message bg */
+        --own-border: #ffdd88;
+        --screen-tint: #0d0d00;      /* The subtle tint of the black screen */
+        --scanline-color: rgba(0, 0, 0, 0.2);
+    }
 
-        body {
-            font-family: 'VT323', monospace;
-            background: #0a0a0a;
-            color: #ffbb33;
-            overflow: hidden;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
+    /* --- THEME: CYBER (Purple/Pink) --- */
+    [data-theme="cyber"] {
+        --primary: #e056fd;
+        --glow: #be2edd;
+        --glow-strong: #8e44ad;
+        --glow-intense: #ff00ff;
+        --bg-overlay: rgba(40, 0, 40, 0.6);
+        --bg-dark: rgba(20, 0, 20, 0.6);
+        --user-bg: rgba(40, 0, 40, 0.5);
+        --own-bg: rgba(60, 20, 60, 0.5);
+        --own-border: #ff9ff3;
+        --screen-tint: #110011;
+    }
 
-        /* Monitor Chassis - Heavy Bezel */
-        #monitor-chassis {
-            width: 90vw;
-            height: 90vh;
-            background: linear-gradient(145deg, #2a2a2a, #1a1a1a, #0d0d0d);
-            border-radius: 40px 40px 50px 50px;
-            padding: 50px 40px 60px 40px;
-            box-shadow: 
-                0 30px 100px rgba(0, 0, 0, 0.9),
-                inset 0 5px 20px rgba(255, 255, 255, 0.1),
-                inset 0 -10px 30px rgba(0, 0, 0, 0.8);
-            position: relative;
-            border: 5px solid #1a1a1a;
-        }
+    /* --- THEME: RIOT (Red/Aggressive) --- */
+    [data-theme="riot"] {
+        --primary: #eb4d4b;
+        --glow: #ff0000;
+        --glow-strong: #c0392b;
+        --glow-intense: #ff3333;
+        --bg-overlay: rgba(40, 0, 0, 0.6);
+        --bg-dark: rgba(20, 0, 0, 0.6);
+        --user-bg: rgba(40, 10, 10, 0.5);
+        --own-bg: rgba(60, 10, 10, 0.5);
+        --own-border: #ff7979;
+        --screen-tint: #110000;
+    }
 
-        #monitor-chassis::before {
-            content: '';
-            position: absolute;
-            top: 15px;
-            left: 15px;
-            right: 15px;
-            bottom: 15px;
-            border: 2px solid #333;
-            border-radius: 35px 35px 45px 45px;
-            pointer-events: none;
-        }
+    /* --- THEME: DOCKER (Blue/Cyan) --- */
+    [data-theme="docker"] {
+        --primary: #48dbfb;
+        --glow: #0abde3;
+        --glow-strong: #2980b9;
+        --glow-intense: #00d2d3;
+        --bg-overlay: rgba(0, 30, 40, 0.6);
+        --bg-dark: rgba(0, 15, 20, 0.6);
+        --user-bg: rgba(0, 30, 40, 0.5);
+        --own-bg: rgba(0, 40, 50, 0.5);
+        --own-border: #7efff5;
+        --screen-tint: #000d11;
+    }
 
-        /* CRT Screen with Glass Bulge Effect */
-        #crt-screen {
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(ellipse at center, #0d0d00 0%, #000000 100%);
-            border-radius: 25px;
-            position: relative;
-            overflow: hidden;
-            box-shadow: 
-                inset 0 0 150px rgba(255, 200, 50, 0.15),
-                inset 20px 20px 100px rgba(0, 0, 0, 0.8),
-                inset -20px -20px 100px rgba(0, 0, 0, 0.8),
-                0 0 50px rgba(255, 200, 50, 0.1);
-            border: 10px solid #0d0d0d;
-            /* Heavy CRT Bulge Effect */
-            transform: perspective(1200px) rotateX(0deg);
-            transform-style: preserve-3d;
-        }
+    /* --- THEME: HACKER (Matrix Green) --- */
+    [data-theme="hacker"] {
+        --primary: #2ecc71;
+        --glow: #00b894;
+        --glow-strong: #006266;
+        --glow-intense: #55efc4;
+        --bg-overlay: rgba(0, 40, 0, 0.6);
+        --bg-dark: rgba(0, 20, 0, 0.6);
+        --user-bg: rgba(0, 40, 10, 0.5);
+        --own-bg: rgba(10, 50, 20, 0.5);
+        --own-border: #b8e994;
+        --screen-tint: #000f00;
+    }
 
-        #crt-screen::before {
-            content: '';
-            position: absolute;
-            top: -10%;
-            left: -10%;
-            right: -10%;
-            bottom: -10%;
-            background: radial-gradient(
-                ellipse at 45% 40%,
-                rgba(255, 255, 255, 0.15) 0%,
-                transparent 50%
-            );
-            pointer-events: none;
-            z-index: 15;
-        }
+    /* =========================================
+       2. VIEW TRANSITION ANIMATION (The Ripple)
+       ========================================= */
+    
+    ::view-transition-old(root),
+    ::view-transition-new(root) {
+        animation: none;
+        mix-blend-mode: normal;
+    }
 
-        /* Glass Reflection */
-        #glass-reflection {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                linear-gradient(
-                    135deg,
-                    rgba(255, 255, 255, 0.1) 0%,
-                    transparent 30%,
-                    transparent 70%,
-                    rgba(255, 255, 255, 0.05) 100%
-                );
-            pointer-events: none;
-            z-index: 14;
-        }
+    /* The old screen sits behind */
+    ::view-transition-old(root) {
+        z-index: 1;
+    }
 
-        /* Screen Bulge Warp Effect */
-        #bulge-warp {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(
-                ellipse at center,
-                transparent 0%,
-                transparent 40%,
-                rgba(0, 0, 0, 0.3) 80%,
-                rgba(0, 0, 0, 0.6) 100%
-            );
-            pointer-events: none;
-            z-index: 13;
-            transform: scale(1.05);
-        }
+    /* The new screen ripples on top */
+    ::view-transition-new(root) {
+        z-index: 999;
+        /* The animation matches the "Theme Select" button position roughly */
+        animation: theme-ripple 4.5s cubic-bezier(0.25, 1, 0.5, 1);
+    }
 
-        /* Screen Content Container */
-        #screen-content {
-            width: 100%;
-            height: 100%;
-            padding: 25px;
-            position: relative;
-            z-index: 2;
-            display: flex;
-            flex-direction: column;
-            /* Simulate screen distortion */
-            transform: scale(0.98);
+    @keyframes theme-ripple {
+        0% {
+            clip-path: circle(0% at 85% 12%); /* Starts near the selector */
         }
+        100% {
+            clip-path: circle(150% at 85% 12%); /* Expands to cover screen */
+        }
+    }
 
-        /* Scanlines Effect */
-        #scanlines {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(
-                0deg,
-                rgba(0, 0, 0, 0.2) 0px,
-                rgba(0, 0, 0, 0.2) 1px,
-                transparent 1px,
-                transparent 2px
-            );
-            pointer-events: none;
-            z-index: 12;
-            animation: scanlineMove 10s linear infinite;
-        }
+    /* =========================================
+       3. YOUR ORIGINAL CSS (Refactored with Vars)
+       ========================================= */
 
-        @keyframes scanlineMove {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(4px); }
-        }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-        /* Heavy Vignette Effect */
-        #vignette {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(
-                ellipse at center,
-                transparent 0%,
-                transparent 30%,
-                rgba(0, 0, 0, 0.4) 60%,
-                rgba(0, 0, 0, 0.8) 85%,
-                rgba(0, 0, 0, 0.95) 100%
-            );
-            pointer-events: none;
-            z-index: 11;
-        }
+    body {
+        font-family: 'VT323', monospace;
+        background: #0a0a0a;
+        color: var(--primary); /* VAR */
+        overflow: hidden;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
 
-        /* CRT Phosphor Glow - Amber/Yellow */
-        #crt-glow {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(
-                ellipse at 48% 45%,
-                rgba(255, 180, 50, 0.2) 0%,
-                rgba(255, 150, 30, 0.1) 30%,
-                transparent 70%
-            );
-            pointer-events: none;
-            z-index: 10;
-            animation: glowPulse 5s ease-in-out infinite;
-        }
+    /* Monitor Chassis - Heavy Bezel (Kept dark grays static, they don't change) */
+    #monitor-chassis {
+        width: 90vw; height: 90vh;
+        background: linear-gradient(145deg, #2a2a2a, #1a1a1a, #0d0d0d);
+        border-radius: 40px 40px 50px 50px;
+        padding: 50px 40px 60px 40px;
+        box-shadow: 
+            0 30px 100px rgba(0, 0, 0, 0.9),
+            inset 0 5px 20px rgba(255, 255, 255, 0.1),
+            inset 0 -10px 30px rgba(0, 0, 0, 0.8);
+        position: relative;
+        border: 5px solid #1a1a1a;
+    }
 
-        @keyframes glowPulse {
-            0%, 100% { opacity: 0.7; }
-            50% { opacity: 1; }
-        }
+    #monitor-chassis::before {
+        content: ''; position: absolute; top: 15px; left: 15px; right: 15px; bottom: 15px;
+        border: 2px solid #333; border-radius: 35px 35px 45px 45px; pointer-events: none;
+    }
 
-        /* Screen Flicker */
-        @keyframes flicker {
-            0% { opacity: 0.97; }
-            3% { opacity: 0.92; }
-            6% { opacity: 1; }
-            7% { opacity: 0.95; }
-            8% { opacity: 0.98; }
-            10% { opacity: 0.96; }
-            100% { opacity: 0.98; }
-        }
+    /* CRT Screen with Glass Bulge Effect */
+    #crt-screen {
+        width: 100%; height: 100%;
+        /* VAR: Uses screen-tint for the subtle background color change */
+        background: radial-gradient(ellipse at center, var(--screen-tint) 0%, #000000 100%);
+        border-radius: 25px; position: relative; overflow: hidden;
+        /* VAR: Inner glow color matches theme */
+        box-shadow: 
+            inset 0 0 150px var(--bg-overlay),
+            inset 20px 20px 100px rgba(0, 0, 0, 0.8),
+            inset -20px -20px 100px rgba(0, 0, 0, 0.8),
+            0 0 50px rgba(var(--primary), 0.1);
+        border: 10px solid #0d0d0d;
+        transform: perspective(1200px) rotateX(0deg);
+        transform-style: preserve-3d;
+        animation: flicker 0.2s infinite;
+    }
 
-        #crt-screen {
-            animation: flicker 0.2s infinite;
-        }
+    /* (Keeping your decorative pseudo-elements exactly as they were) */
+    #crt-screen::before {
+        content: ''; position: absolute; top: -10%; left: -10%; right: -10%; bottom: -10%;
+        background: radial-gradient(ellipse at 45% 40%, rgba(255, 255, 255, 0.15) 0%, transparent 50%);
+        pointer-events: none; z-index: 15;
+    }
+    #glass-reflection {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(135deg, rgba(255, 255, 255, 0.1) 0%, transparent 30%, transparent 70%, rgba(255, 255, 255, 0.05) 100%);
+        pointer-events: none; z-index: 14;
+    }
+    #bulge-warp {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(ellipse at center, transparent 0%, transparent 40%, rgba(0, 0, 0, 0.3) 80%, rgba(0, 0, 0, 0.6) 100%);
+        pointer-events: none; z-index: 13; transform: scale(1.05);
+    }
+    #screen-content {
+        width: 100%; height: 100%; padding: 25px; position: relative; z-index: 2;
+        display: flex; flex-direction: column; transform: scale(0.98);
+    }
 
-        /* Glitch Canvas */
-        #glitch-canvas {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 9;
-            pointer-events: none;
-            opacity: 0.4;
-        }
+    /* Scanlines */
+    #scanlines {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        /* VAR: Scanline color */
+        background: repeating-linear-gradient(0deg, var(--scanline-color) 0px, var(--scanline-color) 1px, transparent 1px, transparent 2px);
+        pointer-events: none; z-index: 12; animation: scanlineMove 10s linear infinite;
+    }
+    @keyframes scanlineMove { 0% { transform: translateY(0); } 100% { transform: translateY(4px); } }
 
-        /* Header */
-        #terminal-header {
-            background: rgba(40, 30, 0, 0.6);
-            border: 3px solid #ffaa33;
-            padding: 18px 25px;
-            margin-bottom: 20px;
-            box-shadow: 
-                0 0 30px rgba(255, 170, 50, 0.4),
-                inset 0 0 30px rgba(0, 0, 0, 0.8);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 1.2em;
-        }
+    #vignette {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(ellipse at center, transparent 0%, transparent 30%, rgba(0, 0, 0, 0.4) 60%, rgba(0, 0, 0, 0.8) 85%, rgba(0, 0, 0, 0.95) 100%);
+        pointer-events: none; z-index: 11;
+    }
 
-        #terminal-title {
-            font-family: 'Press Start 2P', cursive;
-            font-size: 1.6em;
-            color: #ffcc66;
-            text-shadow: 
-                0 0 15px #ffaa33,
-                0 0 30px #ffaa33,
-                0 0 45px #ff8833,
-                0 0 60px #ff6633;
-            letter-spacing: 4px;
-            animation: titleGlow 3s ease-in-out infinite;
-        }
+    /* CRT Phosphor Glow */
+    #crt-glow {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        /* VAR: The glow follows the primary theme color */
+        background: radial-gradient(ellipse at 48% 45%, var(--bg-overlay) 0%, transparent 70%);
+        pointer-events: none; z-index: 10; animation: glowPulse 5s ease-in-out infinite;
+    }
+    @keyframes glowPulse { 0%, 100% { opacity: 0.7; } 50% { opacity: 1; } }
+    @keyframes flicker { 0% { opacity: 0.97; } 3% { opacity: 0.92; } 6% { opacity: 1; } 7% { opacity: 0.95; } 8% { opacity: 0.98; } 10% { opacity: 0.96; } 100% { opacity: 0.98; } }
+    
+    #glitch-canvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 9; pointer-events: none; opacity: 0.4; }
 
-        @keyframes titleGlow {
-            0%, 100% { 
-                text-shadow: 
-                    0 0 15px #ffaa33,
-                    0 0 30px #ffaa33,
-                    0 0 45px #ff8833;
-            }
-            50% { 
-                text-shadow: 
-                    0 0 20px #ffaa33,
-                    0 0 40px #ffaa33,
-                    0 0 60px #ff8833,
-                    0 0 80px #ff6633;
-            }
-        }
+    /* Header */
+    #terminal-header {
+        background: var(--bg-overlay); /* VAR */
+        border: 3px solid var(--glow); /* VAR */
+        padding: 18px 25px; margin-bottom: 20px;
+        box-shadow: 0 0 30px var(--bg-overlay), inset 0 0 30px rgba(0, 0, 0, 0.8);
+        display: flex; justify-content: space-between; align-items: center; font-size: 1.2em;
+    }
 
-        #online-users {
-            font-size: 1.2em;
-            color: #ffbb33;
-            text-shadow: 0 0 15px #ffaa33;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px 18px;
-            border: 2px solid #ffaa33;
-            box-shadow: 0 0 20px rgba(255, 170, 50, 0.5);
-        }
+    #terminal-title {
+        font-family: 'Press Start 2P', cursive; font-size: 1.6em;
+        color: var(--primary); /* VAR */
+        text-shadow: 0 0 15px var(--glow), 0 0 30px var(--glow), 0 0 45px var(--glow-strong); /* VARS */
+        letter-spacing: 4px; animation: titleGlow 3s ease-in-out infinite;
+    }
 
-        /* Chat Window */
-        #chat-window {
-            flex: 1;
-            background: rgba(20, 15, 0, 0.6);
-            border: 3px solid #ffaa33;
-            padding: 20px;
-            margin-bottom: 20px;
-            overflow-y: auto;
-            box-shadow: 
-                0 0 40px rgba(255, 170, 50, 0.3),
-                inset 0 0 80px rgba(0, 0, 0, 0.9);
-            position: relative;
-        }
+    @keyframes titleGlow {
+        0%, 100% { text-shadow: 0 0 15px var(--glow), 0 0 30px var(--glow), 0 0 45px var(--glow-strong); }
+        50% { text-shadow: 0 0 20px var(--glow), 0 0 40px var(--glow), 0 0 60px var(--glow-strong), 0 0 80px var(--glow-intense); }
+    }
 
-        #chat-window::-webkit-scrollbar {
-            width: 12px;
-        }
+    /* NEW: Theme Select Styling */
+    .header-controls { display: flex; gap: 15px; align-items: center; }
+    
+    select#theme-select {
+        background: rgba(0,0,0,0.8); color: var(--primary);
+        border: 2px solid var(--glow);
+        font-family: 'VT323', monospace; font-size: 1em;
+        padding: 8px; cursor: pointer; outline: none;
+        box-shadow: 0 0 15px var(--bg-overlay);
+        text-transform: uppercase;
+    }
+    select#theme-select option { background: #000; color: var(--primary); }
 
-        #chat-window::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.9);
-            border: 1px solid #ffaa33;
-        }
+    #online-users {
+        font-size: 1.2em; color: var(--primary); /* VAR */
+        text-shadow: 0 0 15px var(--glow); /* VAR */
+        background: rgba(0, 0, 0, 0.8); padding: 10px 18px;
+        border: 2px solid var(--glow); /* VAR */
+        box-shadow: 0 0 20px var(--bg-overlay); /* VAR */
+    }
 
-        #chat-window::-webkit-scrollbar-thumb {
-            background: #ffaa33;
-            border: 1px solid #ffcc66;
-            box-shadow: 0 0 15px #ffaa33;
-        }
+    /* Chat Window */
+    #chat-window {
+        flex: 1; background: var(--bg-dark); /* VAR */
+        border: 3px solid var(--glow); /* VAR */
+        padding: 20px; margin-bottom: 20px; overflow-y: auto;
+        box-shadow: 0 0 40px var(--bg-overlay), inset 0 0 80px rgba(0, 0, 0, 0.9);
+        position: relative;
+    }
 
-        #messages {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
+    /* Scrollbar logic updated for vars */
+    #chat-window::-webkit-scrollbar { width: 12px; }
+    #chat-window::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.9); border: 1px solid var(--glow); }
+    #chat-window::-webkit-scrollbar-thumb { background: var(--glow); border: 1px solid var(--primary); box-shadow: 0 0 15px var(--glow); }
 
-        .message-item {
-            background: rgba(40, 30, 0, 0.5);
-            border-left: 4px solid #ffaa33;
-            padding: 12px 18px;
-            box-shadow: 0 0 20px rgba(255, 170, 50, 0.2);
-            animation: messageAppear 0.4s ease-out;
-            font-size: 1.3em;
-            line-height: 1.5;
-        }
+    #messages { display: flex; flex-direction: column; gap: 15px; }
 
-        @keyframes messageAppear {
-            from {
-                opacity: 0;
-                transform: translateX(-30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
-        }
+    .message-item {
+        background: var(--user-bg); /* VAR */
+        border-left: 4px solid var(--glow); /* VAR */
+        padding: 12px 18px; box-shadow: 0 0 20px rgba(0,0,0,0.2);
+        animation: messageAppear 0.4s ease-out; font-size: 1.3em; line-height: 1.5;
+        color: var(--primary);
+    }
 
-        .message-item.own {
-            background: rgba(40, 40, 20, 0.5);
-            border-left-color: #ffdd88;
-            align-self: flex-end;
-            max-width: 80%;
-        }
+    @keyframes messageAppear { from { opacity: 0; transform: translateX(-30px); } to { opacity: 1; transform: translateX(0); } }
 
-        .message-item.join {
-            background: rgba(30, 40, 20, 0.4);
-            border-left-color: #99ff66;
-            text-align: center;
-            font-style: italic;
-            color: #99ff66;
-            text-shadow: 0 0 10px #99ff66;
-        }
+    .message-item.own {
+        background: var(--own-bg); /* VAR */
+        border-left-color: var(--own-border); /* VAR */
+        align-self: flex-end; max-width: 80%;
+    }
 
-        .message-item.leave {
-            background: rgba(40, 30, 20, 0.4);
-            border-left-color: #ffaa66;
-            text-align: center;
-            font-style: italic;
-            color: #ffaa66;
-            text-shadow: 0 0 10px #ffaa66;
-        }
+    /* Keep these specific colors for Join/Leave/Error as they are standard system alerts */
+    .message-item.join { background: rgba(30, 40, 20, 0.4); border-left-color: #99ff66; text-align: center; font-style: italic; color: #99ff66; text-shadow: 0 0 10px #99ff66; }
+    .message-item.leave { background: rgba(40, 30, 20, 0.4); border-left-color: #ffaa66; text-align: center; font-style: italic; color: #ffaa66; text-shadow: 0 0 10px #ffaa66; }
+    .message-item.error { background: rgba(40, 20, 0, 0.5); border-left-color: #ff6633; text-align: center; color: #ff8866; text-shadow: 0 0 15px #ff6633; }
 
-        .message-item.error {
-            background: rgba(40, 20, 0, 0.5);
-            border-left-color: #ff6633;
-            text-align: center;
-            color: #ff8866;
-            text-shadow: 0 0 15px #ff6633;
-        }
+    .message-meta { display: flex; justify-content: space-between; margin-bottom: 6px; gap: 12px; }
+    
+    .message-name { color: var(--primary); font-weight: bold; text-shadow: 0 0 10px var(--glow); }
+    .message-item.own .message-name { color: var(--own-border); text-shadow: 0 0 10px var(--glow); }
+    
+    .message-timestamp { color: var(--primary); opacity: 0.6; font-size: 0.9em; }
+    
+    .message-text { color: var(--primary); text-shadow: 0 0 5px var(--glow); word-wrap: break-word; }
+    .message-item.own .message-text { color: var(--own-border); text-shadow: 0 0 5px var(--glow); }
 
-        .message-meta {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 6px;
-            gap: 12px;
-        }
+    /* Input Footer */
+    #terminal-footer {
+        background: var(--bg-overlay); /* VAR */
+        border: 3px solid var(--glow); /* VAR */
+        padding: 12px; box-shadow: 0 0 30px var(--bg-overlay), inset 0 0 30px rgba(0, 0, 0, 0.8);
+        display: flex; align-items: center; gap: 12px;
+    }
 
-        .message-name {
-            color: #ffcc66;
-            font-weight: bold;
-            text-shadow: 0 0 10px #ffaa33;
-        }
+    #prompt-symbol { color: var(--primary); font-size: 1.4em; text-shadow: 0 0 15px var(--glow); white-space: nowrap; }
 
-        .message-item.own .message-name {
-            color: #ffee99;
-            text-shadow: 0 0 10px #ffcc66;
-        }
+    #msgBox {
+        flex: 1; background: rgba(0, 0, 0, 0.9);
+        border: 2px solid var(--glow); /* VAR */
+        padding: 14px 18px; font-family: 'VT323', monospace; font-size: 1.4em;
+        color: var(--primary); outline: none;
+        box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.9), 0 0 15px var(--bg-overlay);
+        text-shadow: 0 0 8px var(--glow);
+    }
+    #msgBox::placeholder { color: var(--primary); opacity: 0.4; }
+    #msgBox:focus { box-shadow: 0 0 30px var(--bg-overlay), inset 0 0 40px rgba(100, 50, 0, 0.3); border-color: var(--primary); }
+    #msgBox:disabled { opacity: 0.3; cursor: not-allowed; }
 
-        .message-timestamp {
-            color: rgba(255, 187, 51, 0.6);
-            font-size: 0.9em;
-        }
+    /* Cursor */
+    .cursor { display: inline-block; width: 12px; height: 22px; background: var(--primary); animation: cursorBlink 1s infinite; box-shadow: 0 0 15px var(--glow); }
+    @keyframes cursorBlink { 0%, 50% { opacity: 1; } 51%, 100% { opacity: 0; } }
 
-        .message-text {
-            color: #ffbb33;
-            text-shadow: 0 0 5px rgba(255, 170, 50, 0.8);
-            word-wrap: break-word;
-        }
+    /* Power LED - matches theme */
+    #power-led {
+        position: absolute; bottom: 20px; right: 20px; width: 15px; height: 15px;
+        background: var(--glow); border-radius: 50%;
+        box-shadow: 0 0 20px var(--glow), 0 0 40px var(--glow), 0 0 60px var(--glow-strong);
+        animation: ledPulse 2.5s infinite;
+    }
+    @keyframes ledPulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
 
-        .message-item.own .message-text {
-            color: #ffdd88;
-            text-shadow: 0 0 5px rgba(255, 200, 100, 0.8);
-        }
+    #brand-label {
+        position: absolute; bottom: 15px; left: 50%; transform: translateX(-50%);
+        font-family: 'Press Start 2P', cursive; font-size: 0.7em; color: #666; letter-spacing: 2px;
+    }
 
-        /* Input Footer */
-        #terminal-footer {
-            background: rgba(40, 30, 0, 0.6);
-            border: 3px solid #ffaa33;
-            padding: 12px;
-            box-shadow: 
-                0 0 30px rgba(255, 170, 50, 0.4),
-                inset 0 0 30px rgba(0, 0, 0, 0.8);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
+    /* Upload Button */
+    #upload-btn {
+        background: var(--glow); color: #0a0a0a;
+        border: 2px solid var(--primary); padding: 10px 12px; cursor: pointer;
+        font-family: 'VT323', monospace; font-size: 1.2em; display: flex; align-items: center; justify-content: center;
+        box-shadow: 0 0 15px var(--glow); transition: all 0.2s; margin-left: 10px;
+    }
+    #upload-btn:hover { background: var(--primary); color: #0a0a0a; box-shadow: 0 0 25px var(--primary); }
+    #upload-btn:active { transform: scale(0.95); }
+    #upload-btn svg { display: block; }
+    
+    .download-link {
+        color: #99ff66; text-decoration: none; font-weight: bold;
+        background: rgba(0, 0, 0, 0.5); padding: 4px 8px; border: 1px solid #99ff66;
+        text-shadow: 0 0 10px #99ff66; display: inline-block; margin-top: 8px;
+    }
+    .download-link:hover { background: #99ff66; color: #0a0a0a; text-shadow: none; }
 
-        #prompt-symbol {
-            color: #ffcc66;
-            font-size: 1.4em;
-            text-shadow: 0 0 15px #ffaa33;
-            white-space: nowrap;
-        }
-
-        #msgBox {
-            flex: 1;
-            background: rgba(0, 0, 0, 0.9);
-            border: 2px solid #ffaa33;
-            padding: 14px 18px;
-            font-family: 'VT323', monospace;
-            font-size: 1.4em;
-            color: #ffbb33;
-            outline: none;
-            box-shadow: 
-                inset 0 0 30px rgba(0, 0, 0, 0.9),
-                0 0 15px rgba(255, 170, 50, 0.3);
-            text-shadow: 0 0 8px #ffaa33;
-        }
-
-        #msgBox::placeholder {
-            color: rgba(255, 187, 51, 0.4);
-        }
-
-        #msgBox:focus {
-            box-shadow: 
-                0 0 30px rgba(255, 170, 50, 0.6),
-                inset 0 0 40px rgba(100, 50, 0, 0.3);
-            border-color: #ffcc66;
-        }
-
-        #msgBox:disabled {
-            opacity: 0.3;
-            cursor: not-allowed;
-        }
-
-        /* Cursor Blink */
-        .cursor {
-            display: inline-block;
-            width: 12px;
-            height: 22px;
-            background: #ffbb33;
-            animation: cursorBlink 1s infinite;
-            box-shadow: 0 0 15px #ffaa33;
-        }
-
-        @keyframes cursorBlink {
-            0%, 50% { opacity: 1; }
-            51%, 100% { opacity: 0; }
-        }
-
-        /* Power LED - Amber */
-        #power-led {
-            position: absolute;
-            bottom: 20px;
-            right: 20px;
-            width: 15px;
-            height: 15px;
-            background: #ffaa33;
-            border-radius: 50%;
-            box-shadow: 
-                0 0 20px #ffaa33,
-                0 0 40px #ffaa33,
-                0 0 60px #ff8833;
-            animation: ledPulse 2.5s infinite;
-        }
-
-        @keyframes ledPulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.6; }
-        }
-
-        /* Brand Label */
-        #brand-label {
-            position: absolute;
-            bottom: 15px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-family: 'Press Start 2P', cursive;
-            font-size: 0.7em;
-            color: #666;
-            letter-spacing: 2px;
-        }
-
-        /* Auto-scroll Animation */
-        @keyframes smoothScroll {
-            0% { transform: translateY(0); }
-            100% { transform: translateY(-100%); }
-        }
-
-        .message-item.auto-scroll {
-            animation: messageAppear 0.4s ease-out, smoothScroll 0.3s ease-out;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            #terminal-title {
-                font-size: 1.1em;
-            }
-            .message-item {
-                font-size: 1.1em;
-            }
-        }
-
-        #upload-btn {
-            background: #ffaa33;
-            color: #0a0a0a;
-            border: 2px solid #ffcc66;
-            padding: 10px 12px;
-            cursor: pointer;
-            font-family: 'VT323', monospace;
-            font-size: 1.2em;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            box-shadow: 0 0 15px #ffaa33;
-            transition: all 0.2s;
-            margin-left: 10px; /* Add some space */
-        }
-
-        #upload-btn:hover {
-            background: #ffcc66;
-            color: #0a0a0a;
-            box-shadow: 0 0 25px #ffcc66;
-        }
-
-        #upload-btn:active {
-            transform: scale(0.95);
-        }
-
-        #upload-btn svg {
-            display: block;
-        }
-        
-        /* Style for the download link in chat */
-        .download-link {
-            color: #99ff66; /* Bright green, stands out */
-            text-decoration: none;
-            font-weight: bold;
-            background: rgba(0, 0, 0, 0.5);
-            padding: 4px 8px;
-            border: 1px solid #99ff66;
-            text-shadow: 0 0 10px #99ff66;
-            display: inline-block;
-            margin-top: 8px;
-        }
-        .download-link:hover {
-            background: #99ff66;
-            color: #0a0a0a;
-            text-shadow: none;
-        }
-    </style>
+    @media (max-width: 768px) {
+        #terminal-title { font-size: 1.1em; }
+        .message-item { font-size: 1.1em; }
+    }
+</style>
 </head>
 <body>
     <div id="monitor-chassis">
@@ -588,10 +381,19 @@
             <!-- Screen Content -->
             <div id="screen-content">
                 <div id="terminal-header">
-                    <div id="terminal-title">═ JROUTE ═</div>
-                    <div id="online-users">ONLINE: 0</div>
+                    <div id="terminal-title">JROUTE™ </div>
+                    <div class="header-controls">
+                        <select id="theme-select">
+                            <option value="amber">AMBER</option>
+                            <option value="cyber">CYBER</option>
+                            <option value="riot">RIOT</option>
+                            <option value="docker">DOCKER</option>
+                            <option value="hacker">HACKER</option>
+                        </select>
+                        <div id="online-users">ONLINE: 0</div>
+                    </div>
                 </div>
-                
+                                
                 <div id="chat-window">
                     <div id="messages">
                         <!-- Messages will be injected here -->
@@ -625,115 +427,160 @@
         </div>
     </div>
 
-    <script>
-        // Nickname Management with Session Storage (NOT localStorage)
-        // Using sessionStorage because localStorage is not supported in Claude artifacts
-        let userNickname = sessionStorage.getItem('jroute_nickname');
-        
-        // Only ask for nickname if not already set
-        if (!userNickname) {
-            while (!userNickname || userNickname.trim() === "") {
-                userNickname = prompt("Please enter your nickname:");
-                if (userNickname === null) {
-                    document.body.innerHTML = "<h1 style='color: #ffbb33; text-align: center; margin-top: 20vh; font-family: VT323;'>Please refresh and enter a nickname to join the chat.</h1>";
-                    throw new Error("Nickname required");
-                }
+<script>
+    // --- 1. NICKNAME LOGIC ---
+    let userNickname = sessionStorage.getItem('jroute_nickname');
+    
+    if (!userNickname) {
+        while (!userNickname || userNickname.trim() === "") {
+            userNickname = prompt("Please enter your nickname:");
+            if (userNickname === null) {
+                document.body.innerHTML = "<h1 style='color: var(--primary); text-align: center; margin-top: 20vh; font-family: VT323;'>Please refresh and enter a nickname to join the chat.</h1>";
+                throw new Error("Nickname required");
             }
-            // Store in sessionStorage
-            sessionStorage.setItem('jroute_nickname', userNickname.trim());
+        }
+        sessionStorage.setItem('jroute_nickname', userNickname.trim());
+    }
+    
+    // --- 2. AUTO-SCROLL OBSERVER ---
+    const chatWindow = document.getElementById('chat-window');
+    const messagesContainer = document.getElementById('messages');
+    
+    const observer = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+            if (mutation.addedNodes.length) {
+                chatWindow.scrollTo({ top: chatWindow.scrollHeight, behavior: 'smooth' });
+            }
+        });
+    });
+    
+    observer.observe(messagesContainer, { childList: true, subtree: true });
+
+    // --- 3. DYNAMIC GLITCH EFFECT (THEME AWARE) ---
+    const canvas = document.getElementById('glitch-canvas');
+    const ctx = canvas.getContext('2d');
+    
+    // Default colors (will be overwritten by CSS vars)
+    let glitchPrimary = '#ffbb33'; 
+    let glitchStrong = '#ff8833';
+
+    function resizeCanvas() {
+        canvas.width = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    // Function to read current CSS variables
+    function updateGlitchColors() {
+        const styles = getComputedStyle(document.documentElement);
+        // .trim() is important to remove whitespace from CSS var
+        glitchPrimary = styles.getPropertyValue('--primary').trim();
+        glitchStrong = styles.getPropertyValue('--glow-strong').trim();
+    }
+
+    function drawGlitch() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Random glitch occurrence
+        if (Math.random() > 0.96) {
+            const glitchHeight = Math.random() * 60 + 30;
+            const glitchY = Math.random() * canvas.height;
+            
+            // Layer 1: Strong Glow (Background block)
+            ctx.globalAlpha = 0.4; 
+            ctx.fillStyle = glitchStrong; 
+            ctx.fillRect(0, glitchY, canvas.width, glitchHeight);
+            
+            // Layer 2: Primary Color (Offset block)
+            ctx.globalAlpha = 0.3;
+            ctx.fillStyle = glitchPrimary;
+            ctx.fillRect(Math.random() * 15 - 7, glitchY, canvas.width, glitchHeight);
+            
+            // Layer 3: Detail Line
+            ctx.globalAlpha = 0.4;
+            ctx.fillStyle = glitchStrong;
+            ctx.fillRect(Math.random() * 15 - 7, glitchY, canvas.width, glitchHeight);
+            
+            // Reset Alpha so we don't mess up future draws
+            ctx.globalAlpha = 1.0;
         }
         
-        // Auto-scroll to bottom when new message arrives
-        const chatWindow = document.getElementById('chat-window');
-        const messagesContainer = document.getElementById('messages');
-        
-        // Observer for new messages
-        const observer = new MutationObserver((mutations) => {
-            mutations.forEach((mutation) => {
-                if (mutation.addedNodes.length) {
-                    // Smooth scroll to bottom
-                    chatWindow.scrollTo({
-                        top: chatWindow.scrollHeight,
-                        behavior: 'smooth'
-                    });
-                }
+        // Random Noise Particles
+        if (Math.random() > 0.93) {
+            for (let i = 0; i < 30; i++) {
+                // Random opacity for each particle
+                ctx.globalAlpha = Math.random() * 0.4;
+                ctx.fillStyle = glitchPrimary;
+                ctx.fillRect(
+                    Math.random() * canvas.width,
+                    Math.random() * canvas.height,
+                    Math.random() * 120,
+                    Math.random() * 4
+                );
+            }
+            ctx.globalAlpha = 1.0; // Reset
+        }
+    }
+
+    // Initialize colors immediately
+    updateGlitchColors();
+    setInterval(drawGlitch, 60);
+
+    // --- 4. SCREEN SHAKE & CRT EFFECTS ---
+    setInterval(() => {
+        if (Math.random() > 0.97) {
+            const screen = document.getElementById('crt-screen');
+            const xRot = Math.random() * 3 - 1.5;
+            const yRot = Math.random() * 3 - 1.5;
+            const xTrans = Math.random() * 6 - 3;
+            screen.style.transform = `perspective(1200px) rotateX(${xRot}deg) rotateY(${yRot}deg) translateX(${xTrans}px)`;
+            setTimeout(() => {
+                screen.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
+            }, 150);
+        }
+    }, 300);
+
+    // Phosphor afterglow
+    let lastBrightness = 0.98;
+    setInterval(() => {
+        lastBrightness = 0.95 + Math.random() * 0.05;
+        document.getElementById('crt-screen').style.opacity = lastBrightness;
+    }, 100);
+
+    // --- 5. THEME SWITCHER LOGIC (RIPPLE EFFECT) ---
+    const themeSelect = document.getElementById('theme-select');
+    
+    // Load Saved Theme
+    const savedTheme = localStorage.getItem('jroute_theme') || 'amber';
+    document.documentElement.setAttribute('data-theme', savedTheme);
+    if(themeSelect) themeSelect.value = savedTheme;
+    
+    // Update glitch colors after loading saved theme
+    updateGlitchColors();
+
+    // Handle Change
+    if(themeSelect) {
+        themeSelect.addEventListener('change', (e) => {
+            const newTheme = e.target.value;
+            
+            // Fallback
+            if (!document.startViewTransition) {
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('jroute_theme', newTheme);
+                updateGlitchColors(); // Update canvas colors immediately
+                return;
+            }
+
+            // Ripple Transition
+            document.startViewTransition(() => {
+                document.documentElement.setAttribute('data-theme', newTheme);
+                localStorage.setItem('jroute_theme', newTheme);
+                updateGlitchColors(); // Update canvas colors during transition
             });
         });
-        
-        observer.observe(messagesContainer, {
-            childList: true,
-            subtree: true
-        });
-
-        // WebGL Glitch Effect - Amber Theme
-        const canvas = document.getElementById('glitch-canvas');
-        const ctx = canvas.getContext('2d');
-        
-        function resizeCanvas() {
-            canvas.width = canvas.offsetWidth;
-            canvas.height = canvas.offsetHeight;
-        }
-        resizeCanvas();
-        window.addEventListener('resize', resizeCanvas);
-
-        function drawGlitch() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Random glitch occurrence
-            if (Math.random() > 0.96) {
-                const glitchHeight = Math.random() * 60 + 30;
-                const glitchY = Math.random() * canvas.height;
-                
-                // Amber RGB split effect
-                ctx.fillStyle = 'rgba(255, 100, 0, 0.4)';
-                ctx.fillRect(0, glitchY, canvas.width, glitchHeight);
-                
-                ctx.fillStyle = 'rgba(255, 187, 51, 0.3)';
-                ctx.fillRect(Math.random() * 15 - 7, glitchY, canvas.width, glitchHeight);
-                
-                ctx.fillStyle = 'rgba(255, 150, 30, 0.4)';
-                ctx.fillRect(Math.random() * 15 - 7, glitchY, canvas.width, glitchHeight);
-            }
-            
-            // Random amber noise
-            if (Math.random() > 0.93) {
-                for (let i = 0; i < 30; i++) {
-                    ctx.fillStyle = `rgba(255, 170, 51, ${Math.random() * 0.4})`;
-                    ctx.fillRect(
-                        Math.random() * canvas.width,
-                        Math.random() * canvas.height,
-                        Math.random() * 120,
-                        Math.random() * 4
-                    );
-                }
-            }
-        }
-
-        setInterval(drawGlitch, 60);
-
-        // Screen shake with bulge distortion
-        setInterval(() => {
-            if (Math.random() > 0.97) {
-                const screen = document.getElementById('crt-screen');
-                const xRot = Math.random() * 3 - 1.5;
-                const yRot = Math.random() * 3 - 1.5;
-                const xTrans = Math.random() * 6 - 3;
-                screen.style.transform = `perspective(1200px) rotateX(${xRot}deg) rotateY(${yRot}deg) translateX(${xTrans}px)`;
-                setTimeout(() => {
-                    screen.style.transform = 'perspective(1200px) rotateX(0deg) rotateY(0deg)';
-                }, 150);
-            }
-        }, 300);
-
-        // Phosphor afterglow simulation
-        let lastBrightness = 0.98;
-        setInterval(() => {
-            lastBrightness = 0.95 + Math.random() * 0.05;
-            document.getElementById('crt-screen').style.opacity = lastBrightness;
-        }, 100);
-    </script>
-    
-    <!-- Load your actual chat logic -->
-    <script src="script.js"></script>
+    }
+</script>
+<script src="script.js"></script>
 </body>
 </html>
